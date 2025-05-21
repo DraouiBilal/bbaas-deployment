@@ -1,0 +1,17 @@
+env: dev
+# FinOps tagging
+# https://rndwww.nce.amadeus.net/confluence/x/hTLDtw
+automated: false
+
+bitbucket:
+  cluster: in-cluster
+  name: bbaas
+  role: cd
+  revision: main
+
+elements:
+# Continuous Deployment
+- cluster: in-cluster
+  name: bbaas
+  role: cd
+  revision: main

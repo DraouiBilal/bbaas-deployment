@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bbaas-deployment-dev
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec: 
+  project: bbaas-root
+  source:
+    repoURL: 'https://github.com/DraouiBilal/bbaas-deployment.git'
+    path: appset/bitbucket
+    targetRevision: main
+    helm:
+      valueFiles:
+      - values-dev.yaml
+  destination:
+    namespace: argocd-jaas
+    name: in-cluster
+  #syncPolicy:
+  #  automated: {}
