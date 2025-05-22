@@ -17,6 +17,6 @@ spec:
       protocol: TCP
       targetPort: 7990
   selector:
-    app: jenkins-master
+    app: bbaas-nodes
   sessionAffinity: None
   type: ClusterIP
