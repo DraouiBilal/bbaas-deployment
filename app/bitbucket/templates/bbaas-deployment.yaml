@@ -1,0 +1,55 @@
+#
+# Automation Deployment to perform slave namespace clean-up
+#
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bbaas-nodes
+  labels:
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app.kubernetes.io/component: bbaas-nodes
+    app.kubernetes.io/name: bbaas-nodes
+spec:
+  replicas: {{ .Values.global.replicaCount | default 1 }}
+  revisionHistoryLimit: 0
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: bbaas-nodes
+  template:
+    metadata:
+      labels:
+        app: bbaas-nodes
+        app.kubernetes.io/component: bbaas-nodes
+        app.kubernetes.io/name: bbaas-nodes
+        helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+      annotations:
+    spec:
+      containers:
+      - name: bitbucket
+        image: atlassian/bitbucket:8.19.16
+        #resources:
+        #  limits:
+        #    memory: 1500Mi
+        #    ephemeral-storage: 2Gi
+        #  requests:
+        #    cpu: 0.1
+        #    memory: 1500Mi
+        #    ephemeral-storage: 2Gi
+        {{- if .Values.global.mounts.pvcs }}
+        volumeMounts:
+        {{- range .Values.global.mounts.pvcs }}
+        - name: {{ .name }}-volume
+          mountPath: {{ .mountPath | default "/var/atlassian/application-data/bitbucket" }}
+        {{- end }}
+        {{- end }}
+      {{- if .Values.global.mounts.pvcs }}
+      volumes:
+      {{- range .Values.global.mounts.pvcs }}
+      - name: {{ .name }}-volume
+        persistentVolumeClaim:
+          claimName: {{ .name }}
+      {{- end }}
+      {{- end }}

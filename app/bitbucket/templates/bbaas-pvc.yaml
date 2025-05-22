@@ -1,5 +1,5 @@
 # Loop on all the PersistentVolumeClaim to claim
-{{- range .Values.global.pvcs }}
+{{- range .Values.global.mounts.pvcs }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -15,7 +15,7 @@ metadata:
     {{- end }}
 spec:
   accessModes:
-    - ReadWriteMany # Changed from ReadWriteOnce to allow multiple pods
+    - ReadWriteOnce # Changed from ReadWriteOnce to allow multiple pods
   resources:
     requests:
       storage: "{{ .storage }}"

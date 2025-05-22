@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bbaas-node-https
+  annotations:
+    description: Exposes and load balances the application Bitbucket pod
+  labels:
+    app.kubernetes.io/component: node
+    app.kubernetes.io/name: node
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+spec:
+  ports:
+    # Do not modify the port name as it has been used by argos team
+    # https://rndwww.nce.amadeus.net/confluence/pages/viewpage.action?spaceKey=MCONV&title=jenkins-pods
+    - name: app
+      port: 443
+      protocol: TCP
+      targetPort: 7990
+  selector:
+    app: jenkins-master
+  sessionAffinity: None
+  type: ClusterIP

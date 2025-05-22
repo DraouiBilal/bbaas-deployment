@@ -1,6 +1,8 @@
 global:
-  storageClass: standard
-  pvcs:
-  - name: bitbucket-shared
-    storage: 10Gi
-    storageClassName: standard
+  replicaCount: 1
+  mounts:
+    storageClass: standard
+    pvcs:
+    - name: bitbucket-shared
+      storage: 10Gi
+      storageClassName: standard
