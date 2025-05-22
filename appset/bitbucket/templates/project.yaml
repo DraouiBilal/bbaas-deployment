@@ -1,20 +1,20 @@
 #
 # The Project
 #
-#apiVersion: argoproj.io/v1alpha1
-#kind: AppProject
-#metadata:
-#  name: bbaas-{{ .Values.env }}
-#spec:
-#  clusterResourceWhitelist:
-#  - group: '*'
-#    kind: '*'
-#  description: Bitbucket {{ .Values.env | upper }}
-#  destinations:
-#  - name: '*'
-#    namespace: '*'
-#    server: '*'
-#  sourceRepos:
-#  - '*'
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: bbaas-{{ .Values.env }}
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  description: Bitbucket {{ .Values.env | upper }}
+  destinations:
+  - name: '*'
+    namespace: '*'
+    server: '*'
+  sourceRepos:
+  - '*'
 
 ---
