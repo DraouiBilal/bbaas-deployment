@@ -1,0 +1,22 @@
+# Loop on all the PersistentVolumeClaim to claim
+{{- range .Values.global.pvcs }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "{{ .name }}"
+  labels:
+    helm.sh/chart: "{{ $.Chart.Name }}-{{ $.Chart.Version }}"
+  annotations:
+    {{- if .storageClassName }}
+    volume.beta.kubernetes.io/storage-class: "{{ .storageClassName }}"
+    {{- else }}
+    volume.beta.kubernetes.io/storage-class: "{{ $.Values.global.storageClass | default "standard" }}"
+    {{- end }}
+spec:
+  accessModes:
+    - ReadWriteMany # Changed from ReadWriteOnce to allow multiple pods
+  resources:
+    requests:
+      storage: "{{ .storage }}"
+{{- end }}

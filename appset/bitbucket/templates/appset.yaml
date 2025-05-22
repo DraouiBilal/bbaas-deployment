@@ -64,7 +64,7 @@ spec:
               bitbucketEnabled: '{{"{{values.jaasEnabled}}"}}'
       destination:
         name: '{{"{{cluster}}"}}'
-        namespace: 'bitbucket-{{"{{values.name}}"}}-{{"{{values.subtype}}"}}'
+        namespace: 'bitbucket-{{"{{values.name}}"}}-{{.Values.env}}-{{"{{values.subtype}}"}}'
       syncPolicy:
         # {{ if .Values.automated }}
         automated:

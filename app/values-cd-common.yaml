@@ -1,0 +1,6 @@
+global:
+  storageClass: standard
+  pvcs:
+  - name: bitbucket-shared
+    storage: 10Gi
+    storageClassName: standard
