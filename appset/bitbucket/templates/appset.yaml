@@ -1,0 +1,82 @@
+#
+# The Application Set
+#
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: bbaas-appset-{{ .Values.env }}
+spec:
+  generators:
+  - list:
+      elements:
+      # {{- range .Values.elements }}
+      # {{ if (.bitbucketEnabled | default true) }}
+      # BBAAS {{ .name }}
+      #
+      - cluster: "{{ .cluster }}"
+        url: ''
+        values:
+          name: "{{ .name }}"
+          revision: "{{ .revision }}"
+          role: "{{ .role }}"
+          type: bitbucket
+          subtype: cluster
+          bitbucketEnabled: '{{ .bitbucketEnabled | default true }}'
+      # {{ end }}
+      # {{- end }}
+  syncPolicy:
+    # Never delete applications
+    # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/#policy-create-update-prevent-applicationset-controller-from-deleting-applications
+    applicationsSync: create-update
+    # Never cascade resource deletion (NS, PVC...)
+    # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/#prevent-an-applications-child-resources-from-being-deleted-when-the-parent-application-is-deleted
+    preserveResourcesOnDeletion: true
+  template:
+    metadata:
+      name: 'bitbucket-{{"{{cluster}}"}}-{{"{{values.name}}"}}-{{.Values.env}}-{{"{{values.subtype}}"}}'
+      labels:
+        env: '{{ .Values.env }}'
+        role: '{{"{{values.role}}"}}'
+        type: '{{"{{values.type}}"}}'
+    spec:
+      project: 'bbaas-{{ .Values.env }}'
+      source:
+        repoURL: 'https://github.com/DraouiBilal/bbaas-deployment.git'
+        path: 'app/{{"{{values.type}}"}}'
+        targetRevision: '{{"{{values.revision}}"}}'
+        helm:
+          ignoreMissingValueFiles: true
+          valueFiles:
+          - ../values-common.yaml
+          - ../values-{{"{{values.role}}"}}-common.yaml
+          - ../values-{{"{{values.role}}"}}-env-{{ .Values.env }}.yaml
+          - ../values-{{"{{values.role}}"}}-instance-{{"{{values.name}}"}}-{{"{{values.id}}"}}.yaml
+          values: |
+            global:
+              name: '{{"{{values.name}}"}}'
+              id: '{{"{{values.id}}"}}'
+              role: '{{"{{values.role}}"}}'
+              cluster: '{{"{{cluster}}"}}'
+              type: '{{"{{values.type}}"}}'
+              subtype: '{{"{{values.subtype}}"}}'
+              # Booleans cannot be templated
+              # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/GoTemplate/#limitations
+              bitbucketEnabled: '{{"{{values.jaasEnabled}}"}}'
+      destination:
+        name: '{{"{{cluster}}"}}'
+        namespace: 'bitbucket-{{"{{values.name}}"}}-{{"{{values.subtype}}"}}'
+      syncPolicy:
+        # {{ if .Values.automated }}
+        automated:
+          prune: true
+          selfHeal: false
+        # {{ end }}
+        syncOptions:
+        - ApplyOutOfSyncOnly=true
+        - PruneLast=true
+        retry:
+          limit: 2
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m

@@ -1,0 +1,12 @@
+apiVersion: v2
+name: bbaas
+version: 4.13.3
+description: BBaaS app
+keywords:
+- bitbucket
+- bbaas
+- BB
+- devops
+maintainers:
+- name: Draoui Bilal
+  email: bialdraoui22@gmail.com

@@ -1,0 +1,12 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: bitbucket-{{ .Values.global.name }}-{{ .Values.env }}-{{ .Values.global.subtype }}
+  labels:
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    # {{ if .Values.global.cjocManaged }}
+    bitbucket/type: node
+    # {{ else }}
+    # {{ end }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"

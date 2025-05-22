@@ -1,7 +1,7 @@
 env: dev
 # FinOps tagging
 # https://rndwww.nce.amadeus.net/confluence/x/hTLDtw
-automated: false
+automated: true
 
 bitbucket:
   cluster: in-cluster
