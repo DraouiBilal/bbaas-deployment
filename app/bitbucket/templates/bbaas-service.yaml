@@ -13,9 +13,9 @@ spec:
     # Do not modify the port name as it has been used by argos team
     # https://rndwww.nce.amadeus.net/confluence/pages/viewpage.action?spaceKey=MCONV&title=jenkins-pods
     - name: app
-      port: 443
+      port: 8080
       protocol: TCP
-      targetPort: 7990
+      targetPort: 8080
   selector:
     app: bbaas-nodes
   sessionAffinity: None

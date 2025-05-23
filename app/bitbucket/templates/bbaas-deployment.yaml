@@ -11,7 +11,7 @@ metadata:
     app.kubernetes.io/component: bbaas-nodes
     app.kubernetes.io/name: bbaas-nodes
 spec:
-  replicas: {{ .Values.global.replicaCount | default 1 }}
+  replicas: {{ .Values.global.bitbucket.nodes.replicaCount | default 1 }}
   revisionHistoryLimit: 0
   strategy:
     type: RollingUpdate
@@ -30,23 +30,61 @@ spec:
       containers:
       - name: bitbucket
         image: atlassian/bitbucket:8.19.16
+        command: ["/opt/atlassian/bitbucket/bin/start-bitbucket.sh"]
+        args: ["-fg", "--no-search"]
         env:
-        - name: JVM_MINIMUM_MEMORY
-          value: "1g"
-        - name: JVM_MAXIMUM_MEMORY
-          value: "6g"
-        {{- if .Values.global.mounts.pvcs }}
+        - name: KUBE_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: SETUP_LICENSE
+          valueFrom:
+            secretKeyRef:
+              name: bbaas-license
+              key: license-key
+        - name: JDBC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: bbaas-config
+              key: db_password
+        ports:
+        - containerPort: 7990
+          name: http
+        - containerPort: 7999
+          name: ssh
         volumeMounts:
         {{- range .Values.global.mounts.pvcs }}
         - name: {{ .name }}-volume
-          mountPath: {{ .mountPath | default "/var/atlassian/application-data/bitbucket" }}
+          mountPath: {{ .mountPath | default "/var/atlassian/application-data/bitbucket/shared" }}
         {{- end }}
-        {{- end }}
-      {{- if .Values.global.mounts.pvcs }}
+        - name: bitbucket-config-volume
+          mountPath: /var/atlassian/application-data/bitbucket/shared/bitbucket.properties
+          subPath: bitbucket.properties
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        volumeMounts:
+        - name: nginx-config-volume
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: nginx.conf
+
       volumes:
+      - name: bitbucket-config-volume
+        configMap:
+          name: bitbucket-config-map
+          items:
+          - key: bitbucket.properties
+            path: bitbucket.properties
       {{- range .Values.global.mounts.pvcs }}
       - name: {{ .name }}-volume
         persistentVolumeClaim:
           claimName: {{ .name }}
       {{- end }}
-      {{- end }}
+      - name: nginx-config-volume
+        configMap:
+          name: nginx-config-map
+          items:
+            - key: nginx.conf
+              path: nginx.conf
