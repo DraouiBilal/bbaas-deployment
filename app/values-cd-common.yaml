@@ -1,5 +1,30 @@
 global:
-  replicaCount: 1
+  bitbucket:
+    nodes:
+      replicaCount: 1
+      jvm:
+        minMemory: "1g"
+        maxMemory: "3g"
+        extraArgs: "-Xss512k"
+      config:
+        properties: |
+          # Database configuration
+          jdbc.driver=org.postgresql.Driver
+          jdbc.url=jdbc:postgresql://postgresql.postgresql.svc.cluster.local:5432/bitbucketdb
+          jdbc.user=postgres
+          jdbc.password=UV2VrUFmPa
+          # Server settings
+          server.port=7990
+          server.context-path=/bitbucket
+          # Shared home directory
+          bitbucket.home=/var/atlassian/application-data/bitbucket
+          # Clustering (optional, for Data Center)
+          #hazelcast.group.name=bitbucket-cluster
+          #hazelcast.network.tcpip.enabled=true
+          #hazelcast.network.tcpip.members=bitbucket-0,bitbucket-1
+          throttle.resource.scm-hosting=4
+    mesh:
+      replicaCount: 3
   mounts:
     storageClass: standard
     pvcs:

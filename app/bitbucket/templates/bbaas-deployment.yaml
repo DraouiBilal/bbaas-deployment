@@ -11,7 +11,7 @@ metadata:
     app.kubernetes.io/component: bbaas-nodes
     app.kubernetes.io/name: bbaas-nodes
 spec:
-  replicas: {{ .Values.global.replicaCount | default 1 }}
+  replicas: {{ .Values.global.bitbucket.nodes.replicaCount | default 1 }}
   revisionHistoryLimit: 0
   strategy:
     type: RollingUpdate
@@ -30,23 +30,44 @@ spec:
       containers:
       - name: bitbucket
         image: atlassian/bitbucket:8.19.16
+        command: ["/opt/atlassian/bitbucket/bin/start-bitbucket.sh"]
+        args: ["-fg", "--no-search"]
+        ports:
+        - containerPort: 7990
+          name: http
+        - containerPort: 7999
+          name: ssh
         env:
-        - name: JVM_MINIMUM_MEMORY
-          value: "1g"
-        - name: JVM_MAXIMUM_MEMORY
-          value: "6g"
-        {{- if .Values.global.mounts.pvcs }}
+        - name: JAVA_OPTS
+          value: "-Xms2g -Xmx4g -XX:MaxPermSize=256m -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintGCDetails -XX:ThreadStackSize=512 -Dfile.encoding=UTF-8"
+        - name: BITBUCKET_HOME
+          value: "/var/atlassian/application-data/bitbucket"
+        - name: ATL_UMASK
+          value: "0027"
+        resources:
+          requests:
+            memory: "3Gi"
+            cpu: "1.5"
+          limits:
+            memory: "6Gi"
+            cpu: "3"
         volumeMounts:
         {{- range .Values.global.mounts.pvcs }}
         - name: {{ .name }}-volume
           mountPath: {{ .mountPath | default "/var/atlassian/application-data/bitbucket" }}
         {{- end }}
-        {{- end }}
-      {{- if .Values.global.mounts.pvcs }}
+        - name: bitbucket-config-volume
+          mountPath: /var/atlassian/application-data/bitbucket/shared/bitbucket.properties
+          subPath: bitbucket.properties
       volumes:
+      - name: bitbucket-config-volume
+        configMap:
+          name: bitbucket-config-map
+          items:
+          - key: bitbucket.properties
+            path: bitbucket.properties
       {{- range .Values.global.mounts.pvcs }}
       - name: {{ .name }}-volume
         persistentVolumeClaim:
           claimName: {{ .name }}
-      {{- end }}
       {{- end }}
