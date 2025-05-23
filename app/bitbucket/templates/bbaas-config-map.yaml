@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bitbucket-config-map
+data:
+  bitbucket.properties: |
+    {{- .Values.global.bitbucket.nodes.config.properties | nindent 4 }}
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config-map
+data:
+  nginx.conf: |
+    {{- .Values.global.bitbucket.nodes.config.nginx| nindent 4 }}

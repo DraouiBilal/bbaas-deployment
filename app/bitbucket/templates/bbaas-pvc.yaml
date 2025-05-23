@@ -15,7 +15,7 @@ metadata:
     {{- end }}
 spec:
   accessModes:
-    - ReadWriteOnce # Changed from ReadWriteOnce to allow multiple pods
+    - ReadWriteMany
   resources:
     requests:
       storage: "{{ .storage }}"
