@@ -15,7 +15,7 @@ spec:
     - name: app
       port: 443
       protocol: TCP
-      targetPort: 7990
+      targetPort: 80
   selector:
     app: bbaas-nodes
   sessionAffinity: None
