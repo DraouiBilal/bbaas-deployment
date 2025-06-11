@@ -20,3 +20,27 @@ spec:
     app: bbaas-nodes
   sessionAffinity: None
   type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bbaas-mesh-https
+  annotations:
+    description: Exposes and load balances the mesh Bitbucket pod
+  labels:
+    app.kubernetes.io/component: mesh
+    app.kubernetes.io/name: mesh
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+spec:
+  ports:
+    # Do not modify the port name as it has been used by argos team
+    # https://rndwww.nce.amadeus.net/confluence/pages/viewpage.action?spaceKey=MCONV&title=jenkins-pods
+    - name: app
+      port: 8081
+      protocol: TCP
+      targetPort: 8081
+  selector:
+    app: bbaas-mesh
+  sessionAffinity: None
+  type: ClusterIP
