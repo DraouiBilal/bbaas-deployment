@@ -37,11 +37,11 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
-        - name: SETUP_LICENSE
-          valueFrom:
-            secretKeyRef:
-              name: bbaas-license
-              key: license-key
+        #- name: SETUP_LICENSE
+        #  valueFrom:
+        #    secretKeyRef:
+        #      name: bbaas-license
+        #      key: license-key
         - name: JDBC_PASSWORD
           valueFrom:
             secretKeyRef:

@@ -74,6 +74,7 @@ spec:
         syncOptions:
         - ApplyOutOfSyncOnly=true
         - PruneLast=true
+        - ServerSideApply=true
         retry:
           limit: 2
           backoff:
